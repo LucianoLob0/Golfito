@@ -65,29 +65,34 @@ madera habilidad = UnTiro {velocidad = 100, precision = (precisionJugador habili
 
 hierro :: Number -> Palo
 hierro n habilidad = UnTiro {velocidad = (fuerzaJugador habilidad) * n, precision = (precisionJugador habilidad) / n, 
-                            altura = n - 3}
+                            altura = max 0 (n-3)}
 
 -- Ejercicio 1 b)--
 
 palos :: [Palo]
-palos = [putter, madera, hierro 1, hierro 2, hierro 3, hierro 4, hierro 5, hierro 6, hierro 7, hierro 8, hierro 9, hierro 10]
+palos = [putter, madera] ++ map hierro [1..10]
 
 -- Ejercicio 2--
 
 golpe :: Jugador -> Palo -> Tiro
-golpe jugador palo = palo (habilidad jugador)
+golpe jugador palo = (palo.habilidad) jugador
+
 
 -- Ejercicio 3 a)--
 
 type Obstaculo = Tiro -> Bool
+type Efecto = Tiro -> Tiro
+
+obstaculoASuperar :: Obstaculo -> Efecto -> Tiro -> Tiro
+obstaculoASuperar obstaculo efecto tiro
+            | obstaculo tiro = efecto tiro
+            | otherwise = tiroEnEstadoDeReposo
 
 tunelConRampita :: Obstaculo
 tunelConRampita tiro = precision tiro > 90 && altura tiro == 0 
 
-tiroDespuesDelTunel :: Tiro -> Tiro
-tiroDespuesDelTunel tiro 
-            | tunelConRampita tiro = tiro {velocidad = (velocidad tiro) * 2, precision = 100, altura = 0}
-            | otherwise = tiroEnEstadoDeReposo
+efectoDelTunel :: Efecto
+efectoDelTunel tiro = tiro {velocidad = (velocidad tiro) * 2, precision = 100, altura = 0}
 
 tiroEnEstadoDeReposo :: Tiro
 tiroEnEstadoDeReposo = UnTiro {velocidad = 0, precision = 0, altura = 0}
@@ -99,18 +104,16 @@ laguna tiro = velocidad tiro > 80 && between 1 5 (altura tiro)
 
 type Largo = Number
 
-tiroDespuesDeLaLaguna :: Largo -> Tiro -> Tiro
-tiroDespuesDeLaLaguna largoDeLaguna tiro 
-            | laguna tiro = tiro { altura = (altura tiro) / largoDeLaguna}
-            | otherwise = tiroEnEstadoDeReposo
-
+efectoDeLaLaguna :: Largo -> Efecto
+efectoDeLaLaguna largoDeLaguna tiro = tiro { altura = (altura tiro) / largoDeLaguna}
+            
 -- Ejercicio 3 c)--
 
 hoyo :: Obstaculo
 hoyo tiro = between 5 20 (velocidad tiro) && altura tiro == 0 && precision tiro > 95
 
-tiroDespuesDelHoyo :: Tiro -> Tiro
-tiroDespuesDelHoyo tiro = tiroEnEstadoDeReposo
+efectoDelHoyo :: Tiro -> Tiro
+efectoDelHoyo tiro = tiroEnEstadoDeReposo
 
 -- Ejercicio 4 a)--
 
