@@ -118,9 +118,10 @@ efectoDelHoyo tiro = tiroEnEstadoDeReposo
 -- Ejercicio 4 a)--
 
 palosUtiles :: Jugador -> Obstaculo -> [Palo]
-palosUtiles jugador obstaculo = filter (condicion jugador obstaculo) palos
+palosUtiles jugador obstaculo = filter (leSirveParaSuperar jugador obstaculo) palos
 
-condicion :: Jugador -> Obstaculo -> Palo -> Bool
-condicion jugador obstaculo palo = obstaculo (golpe jugador palo)
+leSirveParaSuperar :: Jugador -> Obstaculo -> Palo -> Bool
+leSirveParaSuperar jugador obstaculo palo = obstaculo (golpe jugador palo)
 
 -- Ejercicio 4 b)--
+
